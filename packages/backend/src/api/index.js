@@ -3,11 +3,11 @@ const cors = require('cors');
 
 const api = express();
 api.use(cors());
-let telegramLogger = undefined;
+let telegram = undefined;
 
 api.get('/:message', async (req, res) => {
   const msg = req.params.message;
-  const result = await telegramLogger.sendMessage(msg);
+  const result = await telegram.sendMessage(msg);
   console.log(result);
   if (result.error) {
     res.status(500).send(result.message);
@@ -17,7 +17,7 @@ api.get('/:message', async (req, res) => {
 });
 
 const addTelegramLogger = (telegramBot) => {
-  telegramLogger = telegramBot;
+  telegramBot = telegramBot;
 };
 
 module.exports = {
