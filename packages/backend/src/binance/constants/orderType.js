@@ -1,0 +1,19 @@
+const LIMIT = 'LIMIT';
+const MARKET = 'MARKET';
+const STOP_LOSS = 'STOP_LOSS';
+const STOP_LOSS_LIMIT = 'STOP_LOSS_LIMIT';
+const TAKE_PROFIT = 'TAKE_PROFIT';
+const TAKE_PROFIT_LIMIT = 'TAKE_PROFIT_LIMIT';
+const LIMIT_MAKER = 'LIMIT_MAKER';
+
+module.exports = {
+  orderTypes: {
+    LIMIT,
+    MARKET,
+    STOP_LOSS,
+    STOP_LOSS_LIMIT,
+    TAKE_PROFIT,
+    TAKE_PROFIT_LIMIT,
+    LIMIT_MAKER,
+  },
+};
