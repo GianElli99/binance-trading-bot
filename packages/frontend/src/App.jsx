@@ -1,5 +1,9 @@
 import React from 'react';
 
 export const App = () => {
-  return <div className="bg-gradient-to-r from-red-500">Binance Frontend</div>;
+  return (
+    <div className="min-h-screen bg-gray-900">
+      <h1 className="text-white bg-gray-700">Binance Frontend</h1>
+    </div>
+  );
 };
