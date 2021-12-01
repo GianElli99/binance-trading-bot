@@ -1,7 +1,9 @@
 require('dotenv').config();
 const { BinanceAccount, Order } = require('./binance');
 const { CustomTelegramBot } = require('./telegram');
-const { api, addTelegramLogger } = require('./api');
+const { api } = require('./web-api');
+const { broker, addTelegramLogger } = require('./msg-broker');
+const axios = require('axios');
 
 const apiKey = process.env.TEST_API_KEY;
 const apiSecret = process.env.TEST_API_SECRET;
@@ -13,8 +15,12 @@ const telegramBot = new CustomTelegramBot(chatId, token);
 
 const port = process.env.PORT;
 addTelegramLogger(telegramBot);
+broker.listen(5000, async () => {
+  console.log('Broker working');
+});
 api.listen(port, async () => {
   console.log('Server running on port ' + port);
+  await axios.post('http://localhost:5000/events/testingEvent');
   // await binanceAccount.accountInfo();
   // await binanceAccount.openOrders();
   // const newOrder = new Order(
