@@ -1,26 +1,33 @@
-const express = require('express');
-const cors = require('cors');
+const EventEmitter = require('events');
 
-const broker = express();
-broker.use(cors());
-let telegram = undefined;
+class MessageBroker extends EventEmitter {
+  static instance;
+  telegramBot;
+  binanceBot;
+  constructor() {
+    if (MessageBroker.instance) {
+      return MessageBroker.instance;
+    }
+    super();
+    MessageBroker.instance = this;
 
-broker.post('/events/:eventName', async (req, res) => {
-  const { eventName } = req.params;
-  console.log(eventName);
-  const result = await telegram.sendMessage(eventName);
-  if (result.error) {
-    res.status(500).send(result.message);
-  } else {
-    res.status(200).send(result.message);
+    this.on('testMessage', async (msg) => {
+      console.log('Message in MsgBroker:', msg);
+
+      this.telegramBot.sendMessage('Message in Telegram' + msg);
+      const resp = await this.binanceBot.openOrders();
+      console.log(resp);
+    });
   }
-});
 
-const addTelegramLogger = (telegramBot) => {
-  telegramBot = telegramBot;
-};
+  addTelegramBot(telegramBot) {
+    this.telegramBot = telegramBot;
+  }
+  addBinanceBot(binanceBot) {
+    this.binanceBot = binanceBot;
+  }
+}
 
 module.exports = {
-  broker,
-  addTelegramLogger,
+  MessageBroker,
 };

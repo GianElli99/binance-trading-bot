@@ -2,7 +2,7 @@ require('dotenv').config();
 const { BinanceAccount, Order } = require('./binance');
 const { CustomTelegramBot } = require('./telegram');
 const { api } = require('./web-api');
-const { broker, addTelegramLogger } = require('./msg-broker');
+const { MessageBroker } = require('./msg-broker');
 const axios = require('axios');
 
 const apiKey = process.env.TEST_API_KEY;
@@ -13,25 +13,28 @@ const chatId = parseInt(process.env.CHAT_ID);
 const token = process.env.TELEGRAM_TOKEN;
 const telegramBot = new CustomTelegramBot(chatId, token);
 
+const msgBroker = new MessageBroker();
+msgBroker.addTelegramBot(telegramBot);
+msgBroker.addBinanceBot(binanceAccount);
+
 const port = process.env.PORT;
-addTelegramLogger(telegramBot);
-broker.listen(5000, async () => {
-  console.log('Broker working');
-});
 api.listen(port, async () => {
   console.log('Server running on port ' + port);
-  await axios.post('http://localhost:5000/events/testingEvent');
   // await binanceAccount.accountInfo();
   // await binanceAccount.openOrders();
-  // const newOrder = new Order(
-  //   9346,
-  //   'BTCBUSD',
-  //   80000,
-  //   0.1,
-  //   'GTC',
-  //   'LIMIT',
-  //   'SELL',
-  // );
+  const newOrder = new Order(
+    9346,
+    'BTCBUSD',
+    80000,
+    0.1,
+    'GTC',
+    'LIMIT',
+    'SELL',
+  );
+  await binanceAccount.newOrder(newOrder);
+  const resp = await binanceAccount.openOrders();
+  console.log('Inicializar:', resp);
+
   // await binanceAccount.cancelOrder(newOrder);
   // await binanceAccount.openOrders();
 });

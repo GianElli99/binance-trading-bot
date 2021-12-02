@@ -17,17 +17,17 @@ class BinanceAccount {
   async accountInfo() {
     try {
       const response = await this.account.account();
-      this.account.logger.log(response.data);
+      return response.data;
     } catch (error) {
-      this.account.logger.error(error);
+      return error;
     }
   }
   async openOrders() {
     try {
       const response = await this.account.openOrders();
-      this.account.logger.log(response.data);
+      return response.data;
     } catch (error) {
-      this.account.logger.error(error);
+      return error;
     }
   }
   async newOrder(order) {
