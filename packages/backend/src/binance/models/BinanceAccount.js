@@ -4,6 +4,7 @@ const { orderTypes } = require('../constants/orderType');
 
 class BinanceAccount {
   account;
+  strategy;
 
   constructor(apiKey, apiSecret, mode) {
     this.account = new Spot(apiKey, apiSecret, {
@@ -12,6 +13,23 @@ class BinanceAccount {
           ? 'https://testnet.binance.vision'
           : 'https://api.binance.com',
     });
+  }
+
+  start() {
+    console.log('Started');
+    console.log('Running strat' + this.strategy);
+    this.strategy.run();
+  }
+  stop() {
+    if (this.strategy) {
+      this.strategy.stop();
+      console.log('Stopped');
+    }
+  }
+  changeStrategy(strategy) {
+    this.stop();
+    this.strategy = strategy;
+    this.start();
   }
 
   async accountInfo() {
@@ -25,6 +43,16 @@ class BinanceAccount {
   async openOrders() {
     try {
       const response = await this.account.openOrders();
+      return response.data;
+    } catch (error) {
+      return error;
+    }
+  }
+  async cancelOpenOrders(symbol) {
+    try {
+      const response = await this.account.cancelOpenOrders(symbol, {
+        recvWindow: 3000,
+      });
       return response.data;
     } catch (error) {
       return error;
@@ -65,33 +93,16 @@ class BinanceAccount {
       this.account.logger.error(error);
     }
   }
-}
-// const getAccountInfo = async (client) => {
-//   try {
-//     const response = await client.openOrders();
-//     // const response = await client.newOrder('BTCBUSD', 'SELL', 'LIMIT', {
-//     //   price: '100000',
-//     //   quantity: 0.0002,
-//     //   timeInForce: 'GTC',
-//     // });
-//     // const response = await client.cancelOrder('BTCBUSD', { orderId: 7500 });
-//     client.logger.log(response.data);
-//   } catch (error) {
-//     client.logger.error(error);
-//   }
-//   // client
-//   //   .account()
-//   //   .then((response) => client.logger.log(response.data))
-//   //   .catch((error) => client.logger.error(error));
+  klineWS() {
+    const callbacks = {
+      open: () => console.log('open'),
+      close: () => console.log('closed'),
+      message: (data) => console.log(data),
+    };
+    const wsRef = this.account.miniTickerWS('BTCBUSD', callbacks);
 
-//   // client
-//   //   .newOrder('BTCBUSD', 'SELL', 'LIMIT', {
-//   //     price: '70000',
-//   //     quantity: 0.0002,
-//   //     timeInForce: 'GTC',
-//   //   })
-//   //   .then((response) => client.logger.log(response.data))
-//   //   .catch((error) => client.logger.error(error));
-// };
+    setTimeout(() => this.account.unsubscribe(wsRef), 20000);
+  }
+}
 
 module.exports = { BinanceAccount };
