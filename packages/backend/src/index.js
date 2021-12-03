@@ -1,14 +1,13 @@
 require('dotenv').config();
-const { BinanceAccount, Order } = require('./binance');
+const { BinanceBot, Order } = require('./binance');
 const { CustomTelegramBot } = require('./telegram');
 const { api } = require('./web-api');
 const { MessageBroker } = require('./msg-broker');
-const axios = require('axios');
 const { GridTrading } = require('./binance/models/strategies/GridTrading');
 
 const apiKey = process.env.TEST_API_KEY;
 const apiSecret = process.env.TEST_API_SECRET;
-const binanceAccount = new BinanceAccount(apiKey, apiSecret, 'development');
+const binanceBot = new BinanceBot(apiKey, apiSecret, 'development');
 
 const chatId = parseInt(process.env.CHAT_ID);
 const token = process.env.TELEGRAM_TOKEN;
@@ -16,7 +15,7 @@ const telegramBot = new CustomTelegramBot(chatId, token);
 
 const msgBroker = new MessageBroker();
 msgBroker.addTelegramBot(telegramBot);
-msgBroker.addBinanceBot(binanceAccount);
+msgBroker.addBinanceBot(binanceBot);
 
 const port = process.env.PORT;
 api.listen(port, async () => {
@@ -42,8 +41,8 @@ api.listen(port, async () => {
   // setTimeout(() => {
   //   binanceAccount.stop();
   // }, 10000);
-
-  binanceAccount.klineWS();
+  binanceBot.changeStrategy(new GridTrading());
+  // binanceBot.start();
 });
 // binanceAccount.strategy = 3;
 // binanceAccount.strategy = 5;

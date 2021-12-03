@@ -1,18 +1,10 @@
 class GridTrading {
-  shouldContinue;
-  constructor() {
-    this.shouldContinue = true;
+  name;
+  constructor(name = 'Grid Trading') {
+    this.name = name;
   }
-  run() {
-    setTimeout(() => {
-      console.log('GridTrading');
-      if (this.shouldContinue) {
-        this.run();
-      }
-    }, 2000);
-  }
-  stop() {
-    this.shouldContinue = false;
+  run(data) {
+    console.log('The price is ' + data.c);
   }
 }
 

@@ -18,6 +18,19 @@ class MessageBroker extends EventEmitter {
       const resp = await this.binanceBot.openOrders();
       console.log(resp);
     });
+
+    this.on('stop', async () => {
+      console.log('Stop triggered in Broker');
+
+      this.telegramBot.sendMessage('Stopping');
+      this.binanceBot.stop();
+    });
+    this.on('start', async () => {
+      console.log('Start triggered in Broker');
+
+      this.telegramBot.sendMessage('Starting');
+      this.binanceBot.start();
+    });
   }
 
   addTelegramBot(telegramBot) {

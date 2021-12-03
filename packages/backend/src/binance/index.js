@@ -1,4 +1,4 @@
-const { BinanceAccount } = require('./models/BinanceAccount');
+const { BinanceBot } = require('./models/BinanceBot');
 const { Order } = require('./models/Order');
 
-module.exports = { BinanceAccount, Order };
+module.exports = { BinanceBot, Order };

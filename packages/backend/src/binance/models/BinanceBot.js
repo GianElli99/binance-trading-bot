@@ -2,9 +2,10 @@ const { Spot } = require('@binance/connector');
 const { sides } = require('../constants/side');
 const { orderTypes } = require('../constants/orderType');
 
-class BinanceAccount {
+class BinanceBot {
   account;
   strategy;
+  webSocketRef;
 
   constructor(apiKey, apiSecret, mode) {
     this.account = new Spot(apiKey, apiSecret, {
@@ -17,19 +18,18 @@ class BinanceAccount {
 
   start() {
     console.log('Started');
-    console.log('Running strat' + this.strategy);
-    this.strategy.run();
+    console.log('Running strat' + this.strategy.name);
+    this.klineWS();
   }
   stop() {
     if (this.strategy) {
-      this.strategy.stop();
+      this.account.unsubscribe(this.webSocketRef);
       console.log('Stopped');
     }
   }
   changeStrategy(strategy) {
     this.stop();
     this.strategy = strategy;
-    this.start();
   }
 
   async accountInfo() {
@@ -97,12 +97,13 @@ class BinanceAccount {
     const callbacks = {
       open: () => console.log('open'),
       close: () => console.log('closed'),
-      message: (data) => console.log(data),
+      message: (data) => {
+        const dataParsed = JSON.parse(data);
+        this.strategy.run(dataParsed);
+      },
     };
-    const wsRef = this.account.miniTickerWS('BTCBUSD', callbacks);
-
-    setTimeout(() => this.account.unsubscribe(wsRef), 20000);
+    this.webSocketRef = this.account.miniTickerWS('BTCBUSD', callbacks);
   }
 }
 
-module.exports = { BinanceAccount };
+module.exports = { BinanceBot };
