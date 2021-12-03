@@ -13,17 +13,22 @@ class CustomTelegramBot {
     this.bot.on('message', (msg) => {
       switch (msg.text) {
         case 'start':
+          console.log('TELEGRAM: START');
           this.msgBroker.emit('start');
           break;
         case 'stop':
+          console.log('TELEGRAM: STOP');
           this.msgBroker.emit('stop');
           break;
 
         default:
-          return this.bot.sendMessage(chatId, msg.text);
+          console.log('TELEGRAM: NOT RECOGNIZED');
+          return this.bot.sendMessage(chatId, 'Message not recognized');
       }
     });
-    this.bot.on('polling_error', console.log);
+    this.bot.on('polling_error', (error) => {
+      this.sendMessage(error.message);
+    });
   }
 
   async sendMessage(msg) {

@@ -8,21 +8,15 @@ api.use(cors());
 const msgBroker = new MessageBroker();
 
 api.post('/stop', async (req, res) => {
-  console.log('Stopping received in WEB API');
+  console.log('WEB API: STOP');
   msgBroker.emit('stop');
-  res.json('Stop procces started');
-});
-api.post('/start', async (req, res) => {
-  console.log('Start received in WEB API');
-  msgBroker.emit('start');
-  res.json('Start procces started');
+  res.status(200).json({});
 });
 
-api.post('/test/:message', async (req, res) => {
-  const msg = req.params.message;
-  console.log('Message in WEB API', msg);
-  msgBroker.emit('testMessage', msg);
-  res.json(msg);
+api.post('/start', async (req, res) => {
+  console.log('WEB API: START');
+  msgBroker.emit('start');
+  res.status(200).json({});
 });
 
 module.exports = {

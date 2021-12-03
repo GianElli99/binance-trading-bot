@@ -1,13 +1,15 @@
 const { Spot } = require('@binance/connector');
 const { sides } = require('../constants/side');
 const { orderTypes } = require('../constants/orderType');
+const { MessageBroker } = require('../../msg-broker');
 
 class BinanceBot {
   account;
   strategy;
   webSocketRef;
-
+  msgBroker;
   constructor(apiKey, apiSecret, mode) {
+    this.msgBroker = new MessageBroker();
     this.account = new Spot(apiKey, apiSecret, {
       baseURL:
         mode === 'development'
@@ -17,14 +19,13 @@ class BinanceBot {
   }
 
   start() {
-    console.log('Started');
-    console.log('Running strat' + this.strategy.name);
     this.klineWS();
+    console.log('BINANCE: START');
   }
   stop() {
     if (this.strategy) {
       this.account.unsubscribe(this.webSocketRef);
-      console.log('Stopped');
+      console.log('BINANCE: STOP');
     }
   }
   changeStrategy(strategy) {
@@ -95,8 +96,14 @@ class BinanceBot {
   }
   klineWS() {
     const callbacks = {
-      open: () => console.log('open'),
-      close: () => console.log('closed'),
+      open: () => {
+        console.log('BINANCE WS: OPEN');
+        this.msgBroker.emit('started');
+      },
+      close: () => {
+        console.log('BINANCE WS: CLOSE');
+        this.msgBroker.emit('stopped');
+      },
       message: (data) => {
         const dataParsed = JSON.parse(data);
         this.strategy.run(dataParsed);

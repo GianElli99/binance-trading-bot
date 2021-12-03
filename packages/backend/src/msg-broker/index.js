@@ -11,25 +11,28 @@ class MessageBroker extends EventEmitter {
     super();
     MessageBroker.instance = this;
 
-    this.on('testMessage', async (msg) => {
-      console.log('Message in MsgBroker:', msg);
-
-      this.telegramBot.sendMessage('Message in Telegram' + msg);
-      const resp = await this.binanceBot.openOrders();
-      console.log(resp);
-    });
-
     this.on('stop', async () => {
-      console.log('Stop triggered in Broker');
+      console.log('MSG BROKER: STOP');
 
-      this.telegramBot.sendMessage('Stopping');
+      this.telegramBot.sendMessage('Stop in progress');
       this.binanceBot.stop();
     });
-    this.on('start', async () => {
-      console.log('Start triggered in Broker');
 
-      this.telegramBot.sendMessage('Starting');
+    this.on('start', async () => {
+      console.log('MSG BROKER: START');
+
+      this.telegramBot.sendMessage('Start in progress');
       this.binanceBot.start();
+    });
+    this.on('started', async () => {
+      console.log('MSG BROKER: STARTED');
+
+      this.telegramBot.sendMessage('Started');
+    });
+    this.on('stopped', async () => {
+      console.log('MSG BROKER: STOPED');
+
+      this.telegramBot.sendMessage('Stopped');
     });
   }
 
