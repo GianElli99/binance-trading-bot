@@ -20,7 +20,8 @@ msgBroker.addBinanceBot(binanceBot);
 const port = process.env.PORT;
 api.listen(port, async () => {
   console.log('Server running on port ' + port);
-  // const resp = await binanceAccount.accountInfo();
+  // const resp = await binanceBot.accountInfo();
+  // console.log(resp);
   // await binanceAccount.openOrders();
   // const newOrder = new Order(
   //   9346,
@@ -42,7 +43,7 @@ api.listen(port, async () => {
   //   binanceAccount.stop();
   // }, 10000);
   binanceBot.changeStrategy(new GridTrading());
-  // binanceBot.start();
+  await binanceBot.start();
 });
 // binanceAccount.strategy = 3;
 // binanceAccount.strategy = 5;

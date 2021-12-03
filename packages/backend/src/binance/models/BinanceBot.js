@@ -18,8 +18,9 @@ class BinanceBot {
     });
   }
 
-  start() {
-    this.klineWS();
+  async start() {
+    await this.strategy.setInitialState();
+    this.miniTickerWS();
     console.log('BINANCE: START');
   }
   stop() {
@@ -31,6 +32,7 @@ class BinanceBot {
   changeStrategy(strategy) {
     this.stop();
     this.strategy = strategy;
+    this.strategy.account = this;
   }
 
   async accountInfo() {
@@ -94,7 +96,7 @@ class BinanceBot {
       this.account.logger.error(error);
     }
   }
-  klineWS() {
+  miniTickerWS() {
     const callbacks = {
       open: () => {
         console.log('BINANCE WS: OPEN');
