@@ -1,3 +1,5 @@
+const { Order } = require('../Order');
+
 class GridTrading {
   name;
   account;
@@ -47,8 +49,7 @@ class GridTrading {
       this.buy();
     }
   }
-  buy() {
-    console.log(this.buyOrder ? 'existe buy order' : 'no existe buy');
+  async buy() {
     if (this.buyOrder) {
       //hay orden
       if (this.last_price < this.buyOrder.placedAt) {
@@ -72,6 +73,21 @@ class GridTrading {
           'Place new buy order at ',
           this.last_price + this.last_price * this.grid_trailing_stop_gap,
         );
+
+        const price =
+          this.last_price + this.last_price * this.grid_trailing_stop_gap;
+        const order = new Order(
+          undefined,
+          'BTCBUSD',
+          price.toFixed(2),
+          0.001,
+          'GTC',
+          'LIMIT',
+          'BUY',
+          undefined,
+        );
+        const res = await this.account.newOrder(order);
+        console.log(res);
         this.buyOrder = {
           placedAt: this.last_price,
           price:
@@ -83,9 +99,7 @@ class GridTrading {
   }
 
   sell() {
-    console.log(this.sellOrder ? 'existe sell order' : 'no existe sell');
-
-    if (this.sellOrder) {
+    if (!this.initial_price) {
       //hay orden
       if (this.last_price > this.sellOrder.placedAt) {
         //hay que elevarla
@@ -126,6 +140,7 @@ class GridTrading {
 
   async setInitialState() {
     const res = await this.account.accountInfo();
+    console.log(res);
     this.btc_free_amount = Number(
       res.balances.find((x) => x.asset === 'BTC')?.free,
     );
