@@ -99,7 +99,7 @@ class GridTrading {
   }
 
   sell() {
-    if (!this.initial_price) {
+    if (this.sellOrder) {
       //hay orden
       if (this.last_price > this.sellOrder.placedAt) {
         //hay que elevarla
