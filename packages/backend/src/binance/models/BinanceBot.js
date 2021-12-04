@@ -80,9 +80,9 @@ class BinanceBot {
         order.type,
         order.importantValues(),
       );
-      this.account.logger.log(response.data);
+      return response.data;
     } catch (error) {
-      this.account.logger.error(error);
+      return error;
     }
   }
 
@@ -91,9 +91,9 @@ class BinanceBot {
       const response = await this.account.cancelOrder(order.symbol, {
         orderId: order.id,
       });
-      this.account.logger.log(response.data);
+      return response.data;
     } catch (error) {
-      this.account.logger.error(error);
+      return error;
     }
   }
   miniTickerWS() {

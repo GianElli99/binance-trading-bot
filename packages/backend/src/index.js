@@ -22,7 +22,7 @@ api.listen(port, async () => {
   console.log('Server running on port ' + port);
   // const resp = await binanceBot.accountInfo();
   // console.log(resp);
-  // await binanceAccount.openOrders();
+  //console.log(await binanceBot.openOrders());
   // const newOrder = new Order(
   //   9346,
   //   'BTCBUSD',
@@ -36,7 +36,7 @@ api.listen(port, async () => {
   //const resp = await binanceAccount.cancelOpenOrders('BTCBUSD');
   // console.log(resp);
 
-  // await binanceAccount.cancelOrder(newOrder);
+  console.log(await binanceBot.cancelOpenOrders('BTCBUSD'));
   // await binanceAccount.openOrders();
   // binanceAccount.changeStrategy(new GridTrading());
   // setTimeout(() => {
