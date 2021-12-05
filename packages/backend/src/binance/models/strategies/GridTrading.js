@@ -8,9 +8,9 @@ class GridTrading {
   busd_free_amount;
   busd_locked_amount;
 
-  grid_gap = 0.0005; //0.0125;
-  grid_trailing_stop_gap = 0.0002; //0.0025;
-  calculate_difference = 0.0002;
+  grid_gap = 0.0002; //0.0125;
+  grid_trailing_stop_gap = 0.0001; //0.0025;
+  calculate_difference = 0.0001;
 
   initial_price = undefined;
   last_price = undefined;
@@ -59,11 +59,11 @@ class GridTrading {
           undefined,
           'BTCBUSD',
           price,
-          (0.001).toFixed(5),
+          0.001,
           'GTC',
-          'LIMIT',
+          'TAKE_PROFIT_LIMIT',
           'BUY',
-          undefined,
+          price,
         );
         const deleteOld = await this.account.cancelOrder({
           symbol: 'BTCBUSD',
@@ -88,11 +88,11 @@ class GridTrading {
           undefined,
           'BTCBUSD',
           price,
-          (0.001).toFixed(5),
+          0.001,
           'GTC',
-          'LIMIT',
+          'TAKE_PROFIT_LIMIT',
           'BUY',
-          undefined,
+          price,
         );
         const res = await this.account.newOrder(order);
         console.log(res);
