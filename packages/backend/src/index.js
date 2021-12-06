@@ -22,18 +22,19 @@ api.listen(port, async () => {
   console.log('Server running on port ' + port);
   // const resp = await binanceBot.accountInfo();
   // console.log(resp);
-  console.log(await binanceBot.openOrders());
+  //console.log(await binanceBot.openOrders());
   // const newOrder = new Order(
-  //   9346,
-  //   'BTCBUSD',
-  //   80000,
-  //   0.1,
+  //   undefined,
+  //   'ETHBTC',
+  //   0.085,
+  //   0.0033,
   //   'GTC',
-  //   'LIMIT',
-  //   'SELL',
+  //   'STOP_LOSS_LIMIT',
+  //   'BUY',
+  //   0.085,
   // );
-  // await binanceAccount.newOrder(newOrder);
-  //const resp = await binanceAccount.cancelOpenOrders('BTCBUSD');
+  // console.log(await binanceBot.newOrder(newOrder));
+  //console.log(await binanceBot.openOrders());
   // console.log(resp);
 
   //console.log(await binanceBot.cancelOpenOrders('btcbusd'));
@@ -43,7 +44,7 @@ api.listen(port, async () => {
   //   binanceAccount.stop();
   // }, 10000);
   binanceBot.changeStrategy(new GridTrading());
-  //await binanceBot.start();
+  await binanceBot.start();
 });
 // binanceAccount.strategy = 3;
 // binanceAccount.strategy = 5;

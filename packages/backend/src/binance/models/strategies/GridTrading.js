@@ -8,9 +8,9 @@ class GridTrading {
   busd_free_amount;
   busd_locked_amount;
 
-  grid_gap = 0.0002; //0.0125;
+  grid_gap = 0.0003; //0.0125;
   grid_trailing_stop_gap = 0.0001; //0.0025;
-  calculate_difference = 0.0001;
+  calculate_difference = 0.0002;
 
   initial_price = undefined;
   last_price = undefined;
@@ -49,10 +49,12 @@ class GridTrading {
       //hay orden
       if (this.last_price < Number(this.buyOrder.price)) {
         //hay que bajarla
-        const price = (
-          this.last_price +
-          this.last_price * this.grid_trailing_stop_gap
-        ).toFixed(2);
+        const price = Number(
+          (
+            this.last_price +
+            this.last_price * this.grid_trailing_stop_gap
+          ).toFixed(2),
+        );
         console.log('Trailing buy order modified to ', price);
 
         const order = new Order(
@@ -61,7 +63,7 @@ class GridTrading {
           price,
           0.001,
           'GTC',
-          'TAKE_PROFIT_LIMIT',
+          'STOP_LOSS_LIMIT',
           'BUY',
           price,
         );
@@ -78,10 +80,9 @@ class GridTrading {
       //no hay orden
       if (this.last_price < this.initial_price * (1 - this.grid_gap)) {
         //supera el trigger, hay que crearla entonces
-        const price = (
-          this.last_price *
-          (1 + this.grid_trailing_stop_gap)
-        ).toFixed(2);
+        const price = Number(
+          (this.last_price * (1 + this.grid_trailing_stop_gap)).toFixed(2),
+        );
         console.log('Place new buy order at ', price);
 
         const order = new Order(
@@ -90,7 +91,7 @@ class GridTrading {
           price,
           0.001,
           'GTC',
-          'TAKE_PROFIT_LIMIT',
+          'STOP_LOSS_LIMIT',
           'BUY',
           price,
         );

@@ -78,7 +78,7 @@ class BinanceBot {
         order.symbol,
         order.side,
         order.type,
-        order.importantValues(),
+        { ...order.importantValues(), newOrderRespType: 'RESULT' },
       );
       return response.data;
     } catch (error) {
