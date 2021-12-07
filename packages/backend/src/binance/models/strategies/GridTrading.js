@@ -11,7 +11,7 @@ class GridTrading {
 
   grid_gap = 0.0125; //0.0003; //0.0125;
   grid_trailing_stop_gap = 0.0025; //0.0001; //0.0025;
-  calculate_difference = 0.0002;
+  calculate_difference = 0.0005;
 
   initial_price = undefined;
   last_price = undefined;
@@ -58,6 +58,8 @@ class GridTrading {
         }
       });
       if (executed) {
+        this.initial_price = Number(this.buyOrder.price);
+        this.last_price = Number(this.buyOrder.price);
         this.buyOrder = undefined;
       }
       return !executed;
@@ -72,6 +74,8 @@ class GridTrading {
         }
       });
       if (executed) {
+        this.initial_price = Number(this.sellOrder.price);
+        this.last_price = Number(this.sellOrder.price);
         this.sellOrder = undefined;
       }
       return !executed;
