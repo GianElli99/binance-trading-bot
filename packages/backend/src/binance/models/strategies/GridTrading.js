@@ -105,39 +105,60 @@ class GridTrading {
   sell() {
     if (this.sellOrder) {
       //hay orden
-      if (this.last_price > this.sellOrder.placedAt) {
+      if (this.last_price > Number(this.sellOrder.price)) {
         //hay que elevarla
-        console.log(
-          'Trailing sell order modified to ',
+        const price = Number(
           (
             this.last_price -
             this.last_price * this.grid_trailing_stop_gap
-          ).toString(),
+          ).toFixed(2),
         );
-        this.sellOrder = {
-          placedAt: this.last_price,
-          price:
-            this.last_price - this.last_price * this.grid_trailing_stop_gap,
-        };
-        console.log(`this.sellOrder `, this.sellOrder);
+        console.log('Trailing sell order modified to ', price);
+
+        const order = new Order(
+          undefined,
+          'BTCBUSD',
+          price,
+          0.001,
+          'GTC',
+          'STOP_LOSS_LIMIT',
+          'SELL',
+          price,
+        );
+        const deleteOld = await this.account.cancelOrder({
+          symbol: 'BTCBUSD',
+          id: this.buyOrder.orderId,
+        });
+        console.log(deleteOld);
+        const res = this.account.newOrder(order);
+        console.log(res);
+        this.sellOrder = res;
       }
     } else {
       //no hay orden
       if (this.last_price > this.initial_price * (1 + this.grid_gap)) {
         //supera el trigger, hay que crearla entonces
-        console.log(
-          'Place new sell order at ',
+        const price = Number(
           (
             this.last_price -
             this.last_price * this.grid_trailing_stop_gap
-          ).toString(),
+          ).toFixed(2),
         );
-        this.sellOrder = {
-          placedAt: this.last_price,
-          price:
-            this.last_price - this.last_price * this.grid_trailing_stop_gap,
-        };
-        console.log(`this.sellOrder `, this.sellOrder);
+        console.log('Place new sell order at ', price);
+
+        const order = new Order(
+          undefined,
+          'BTCBUSD',
+          price,
+          0.001,
+          'GTC',
+          'STOP_LOSS_LIMIT',
+          'SELL',
+          price,
+        );
+        const res = await this.account.newOrder(order);
+        console.log(res);
+        this.sellOrder = res;
       }
     }
   }
