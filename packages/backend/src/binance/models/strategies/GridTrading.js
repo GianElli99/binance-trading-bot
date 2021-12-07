@@ -1,4 +1,5 @@
 const { Order } = require('../Order');
+const Mutex = require('async-mutex').Mutex;
 
 class GridTrading {
   name;
@@ -17,8 +18,12 @@ class GridTrading {
 
   sellOrder = undefined;
   buyOrder = undefined;
+
+  mutex;
+
   constructor(name = 'Grid Trading') {
     this.name = name;
+    this.mutex = new Mutex();
   }
   run(data) {
     if (!this.initial_price) {
@@ -45,6 +50,7 @@ class GridTrading {
     }
   }
   async buy() {
+    const release = await this.mutex.acquire();
     if (this.buyOrder) {
       //hay orden
       if (this.last_price < Number(this.buyOrder.price)) {
@@ -100,9 +106,11 @@ class GridTrading {
         this.buyOrder = res;
       }
     }
+    release();
   }
 
-  sell() {
+  async sell() {
+    const release = await this.mutex.acquire();
     if (this.sellOrder) {
       //hay orden
       if (this.last_price > Number(this.sellOrder.price)) {
@@ -161,6 +169,7 @@ class GridTrading {
         this.sellOrder = res;
       }
     }
+    release();
   }
 
   async setInitialState() {

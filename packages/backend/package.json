@@ -20,6 +20,7 @@
   "homepage": "https://github.com/GianElli99/binance-trading-bot#readme",
   "dependencies": {
     "@binance/connector": "^1.5.0",
+    "async-mutex": "^0.3.2",
     "axios": "^0.24.0",
     "common": "^1.0.0",
     "cors": "^2.8.5",
