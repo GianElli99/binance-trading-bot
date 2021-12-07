@@ -9,8 +9,8 @@ class GridTrading {
   busd_free_amount;
   busd_locked_amount;
 
-  grid_gap = 0.0003; //0.0125;
-  grid_trailing_stop_gap = 0.0001; //0.0025;
+  grid_gap = 0.0125; //0.0003; //0.0125;
+  grid_trailing_stop_gap = 0.0025; //0.0001; //0.0025;
   calculate_difference = 0.0002;
 
   initial_price = undefined;
@@ -25,7 +25,7 @@ class GridTrading {
     this.name = name;
     this.mutex = new Mutex();
   }
-  run(data) {
+  async run(data) {
     if (!this.initial_price) {
       this.initial_price = Number(data.c);
       this.last_price = Number(data.c);
@@ -33,6 +33,12 @@ class GridTrading {
       return;
     }
     let close_price = Number(data.c);
+    const problems = await this.checkForExecutedOrderProblems(close_price);
+    if (problems) {
+      console.log('Problem at price ', close_price);
+      this.account.msgBroker.emit('stop');
+      return;
+    }
     if (
       Math.abs(close_price - this.last_price) >
       this.last_price * this.calculate_difference
@@ -40,6 +46,35 @@ class GridTrading {
       this.last_price = close_price;
       console.log(this.last_price, ' Last price');
       this.placeOrder();
+    }
+  }
+  async checkForExecutedOrderProblems(closePrice) {
+    if (this.buyOrder && closePrice >= Number(this.buyOrder.price)) {
+      const res = await this.account.openOrders();
+      let executed = true;
+      res.forEach((order) => {
+        if (order.orderId === this.buyOrder.orderId) {
+          executed = false;
+        }
+      });
+      if (executed) {
+        this.buyOrder = undefined;
+      }
+      return !executed;
+    }
+
+    if (this.sellOrder && closePrice <= Number(this.sellOrder.price)) {
+      const res = await this.account.openOrders();
+      let executed = true;
+      res.forEach((order) => {
+        if (order.orderId === this.sellOrder.orderId) {
+          executed = false;
+        }
+      });
+      if (executed) {
+        this.sellOrder = undefined;
+      }
+      return !executed;
     }
   }
   placeOrder() {
@@ -135,10 +170,10 @@ class GridTrading {
         );
         const deleteOld = await this.account.cancelOrder({
           symbol: 'BTCBUSD',
-          id: this.buyOrder.orderId,
+          id: this.sellOrder.orderId,
         });
         console.log(deleteOld);
-        const res = this.account.newOrder(order);
+        const res = await this.account.newOrder(order);
         console.log(res);
         this.sellOrder = res;
       }

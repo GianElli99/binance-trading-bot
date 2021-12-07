@@ -26,18 +26,18 @@ api.listen(port, async () => {
   // const newOrder = new Order(
   //   undefined,
   //   'ETHBTC',
-  //   0.085,
+  //   0.089,
   //   0.0033,
   //   'GTC',
   //   'STOP_LOSS_LIMIT',
   //   'BUY',
-  //   0.085,
+  //   0.09,
   // );
   // console.log(await binanceBot.newOrder(newOrder));
   //console.log(await binanceBot.openOrders());
   // console.log(resp);
 
-  //console.log(await binanceBot.cancelOpenOrders('btcbusd'));
+  console.log(await binanceBot.cancelOpenOrders('btcbusd'));
   // await binanceAccount.openOrders();
   // binanceAccount.changeStrategy(new GridTrading());
   // setTimeout(() => {
