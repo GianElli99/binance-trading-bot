@@ -9,8 +9,8 @@ class GridTrading {
   busd_free_amount;
   busd_locked_amount;
 
-  grid_gap = 0.0125; //0.0003; //0.0125;
-  grid_trailing_stop_gap = 0.0025; //0.0001; //0.0025;
+  grid_gap = 0.005; //0.0003; //0.0125;
+  grid_trailing_stop_gap = 0.002; //0.0001; //0.0025;
   calculate_difference = 0.0005;
 
   initial_price = undefined;
@@ -92,7 +92,7 @@ class GridTrading {
     const release = await this.mutex.acquire();
     if (this.buyOrder) {
       //hay orden
-      if (this.last_price < Number(this.buyOrder.price)) {
+      if (this.last_price < Number(this.buyOrder.placedAt)) {
         //hay que bajarla
         const price = Number(
           (
@@ -106,7 +106,7 @@ class GridTrading {
           undefined,
           'BTCBUSD',
           price,
-          0.001,
+          0.00021,
           'GTC',
           'STOP_LOSS_LIMIT',
           'BUY',
@@ -120,6 +120,7 @@ class GridTrading {
         const res = await this.account.newOrder(order);
         console.log(res);
         this.buyOrder = res;
+        this.buyOrder.placedAt = this.last_price;
       }
     } else {
       //no hay orden
@@ -134,7 +135,7 @@ class GridTrading {
           undefined,
           'BTCBUSD',
           price,
-          0.001,
+          0.00021,
           'GTC',
           'STOP_LOSS_LIMIT',
           'BUY',
@@ -143,6 +144,7 @@ class GridTrading {
         const res = await this.account.newOrder(order);
         console.log(res);
         this.buyOrder = res;
+        this.buyOrder.placedAt = this.last_price;
       }
     }
     release();
@@ -152,7 +154,7 @@ class GridTrading {
     const release = await this.mutex.acquire();
     if (this.sellOrder) {
       //hay orden
-      if (this.last_price > Number(this.sellOrder.price)) {
+      if (this.last_price > Number(this.sellOrder.placedAt)) {
         //hay que elevarla
         const price = Number(
           (
@@ -166,7 +168,7 @@ class GridTrading {
           undefined,
           'BTCBUSD',
           price,
-          0.001,
+          0.00021,
           'GTC',
           'STOP_LOSS_LIMIT',
           'SELL',
@@ -180,6 +182,7 @@ class GridTrading {
         const res = await this.account.newOrder(order);
         console.log(res);
         this.sellOrder = res;
+        this.sellOrder.placedAt = this.last_price;
       }
     } else {
       //no hay orden
@@ -197,7 +200,7 @@ class GridTrading {
           undefined,
           'BTCBUSD',
           price,
-          0.001,
+          0.00021,
           'GTC',
           'STOP_LOSS_LIMIT',
           'SELL',
@@ -206,6 +209,7 @@ class GridTrading {
         const res = await this.account.newOrder(order);
         console.log(res);
         this.sellOrder = res;
+        this.sellOrder.placedAt = this.last_price;
       }
     }
     release();

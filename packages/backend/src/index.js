@@ -5,9 +5,9 @@ const { api } = require('./web-api');
 const { MessageBroker } = require('./msg-broker');
 const { GridTrading } = require('./binance/models/strategies/GridTrading');
 
-const apiKey = process.env.TEST_API_KEY;
-const apiSecret = process.env.TEST_API_SECRET;
-const binanceBot = new BinanceBot(apiKey, apiSecret, 'development');
+const apiKey = process.env.API_KEY;
+const apiSecret = process.env.API_SECRET;
+const binanceBot = new BinanceBot(apiKey, apiSecret, '');
 
 const chatId = parseInt(process.env.CHAT_ID);
 const token = process.env.TELEGRAM_TOKEN;
@@ -37,7 +37,7 @@ api.listen(port, async () => {
   //console.log(await binanceBot.openOrders());
   // console.log(resp);
 
-  console.log(await binanceBot.cancelOpenOrders('btcbusd'));
+  //console.log(await binanceBot.cancelOpenOrders('btcbusd'));
   // await binanceAccount.openOrders();
   // binanceAccount.changeStrategy(new GridTrading());
   // setTimeout(() => {
