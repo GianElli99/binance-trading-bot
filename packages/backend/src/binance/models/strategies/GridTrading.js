@@ -9,9 +9,9 @@ class GridTrading {
   busd_free_amount;
   busd_locked_amount;
 
-  grid_gap = 0.002; //0.0003; //0.0125;
-  grid_trailing_stop_gap = 0.0005; //0.0001; //0.0025;
-  calculate_difference = 0.0003;
+  grid_gap = 0.00635; //0.0003; //0.0125;
+  grid_trailing_stop_gap = 0.00125; //0.0001; //0.0025;
+  calculate_difference = 0.0005;
 
   initial_price = undefined;
   last_price = undefined;
@@ -27,8 +27,8 @@ class GridTrading {
   }
   async run(data) {
     if (!this.initial_price) {
-      this.initial_price = 50600; //Number(data.c);
-      this.last_price = 50600; //Number(data.c);
+      this.initial_price = 50300; //Number(data.c);
+      this.last_price = 50300; //Number(data.c);
       console.log('Initial price', this.initial_price);
       return;
     }
@@ -37,14 +37,14 @@ class GridTrading {
       Math.abs(close_price - this.last_price) >
       this.last_price * this.calculate_difference
     ) {
-      const release = await this.mutex.acquire();
+      //const release = await this.mutex.acquire();
       const problems = await this.checkForExecutedOrderProblems(close_price);
       if (problems) {
         console.log('Problem at price ', close_price);
         this.account.msgBroker.emit('stop');
         return;
       }
-      release();
+      //release();
       this.last_price = close_price;
       console.log(this.last_price, ' Last price');
       this.placeOrder();
@@ -52,37 +52,35 @@ class GridTrading {
   }
   async checkForExecutedOrderProblems(closePrice) {
     if (this.buyOrder && closePrice >= Number(this.buyOrder.price)) {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      const res = await this.account.getOrder(this.buyOrder.orderId);
-      console.log('open order', res);
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
+      // const res = await this.account.getOrder(this.buyOrder.orderId);
+      // console.log('open order', res);
 
-      let executed = !res;
+      let executed = !false;
       if (executed) {
         this.initial_price = Number(this.buyOrder.price);
         this.last_price = Number(this.buyOrder.price);
-        this.account.msgBroker.emit(
-          'bought',
-          `❗❗BOUGHT❗❗${this.buyOrder.origQty} BTCBUSD at ${this.buyOrder.price}`,
-        );
+        const msg = `❗❗BOUGHT❗❗${this.buyOrder.origQty} BTCBUSD at ${this.buyOrder.price}`;
+        console.log(msg);
+        this.account.msgBroker.emit('bought', msg);
         this.buyOrder = undefined;
       }
       return !executed;
     }
 
     if (this.sellOrder && closePrice <= Number(this.sellOrder.price)) {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      const res = await this.account.getOrder(this.sellOrder.orderId);
-      console.log('open order', res);
-      let executed = !res;
+      // const res = await this.account.getOrder(this.sellOrder.orderId);
+      // console.log('open order', res);
+      let executed = !false;
 
       if (executed) {
         this.initial_price = Number(this.sellOrder.price);
         this.last_price = Number(this.sellOrder.price);
-        this.account.msgBroker.emit(
-          'sold',
-          `💹💹SOLD💹💹${this.sellOrder.origQty} BTCBUSD at ${this.sellOrder.price}`,
-        );
+        const msg = `💹💹SOLD💹💹${this.sellOrder.origQty} BTCBUSD at ${this.sellOrder.price}`;
+        console.log(msg);
+        this.account.msgBroker.emit('sold', msg);
         this.sellOrder = undefined;
       }
       return !executed;
