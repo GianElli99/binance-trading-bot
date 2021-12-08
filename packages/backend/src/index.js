@@ -34,17 +34,19 @@ api.listen(port, async () => {
   //   0.09,
   // );
   // console.log(await binanceBot.newOrder(newOrder));
-  //console.log(await binanceBot.openOrders());
+  console.log(await binanceBot.getOrder(3890954998));
   // console.log(resp);
 
   //console.log(await binanceBot.cancelOpenOrders('btcbusd'));
-  // await binanceAccount.openOrders();
   // binanceAccount.changeStrategy(new GridTrading());
   // setTimeout(() => {
   //   binanceAccount.stop();
   // }, 10000);
   binanceBot.changeStrategy(new GridTrading());
-  await binanceBot.start();
+  //await binanceBot.start();
+  // console.log(Date.now());
+  // await new Promise((resolve) => setTimeout(resolve, 2000));
+  // console.log(Date.now());
 });
 // binanceAccount.strategy = 3;
 // binanceAccount.strategy = 5;

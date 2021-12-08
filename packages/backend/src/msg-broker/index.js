@@ -34,6 +34,16 @@ class MessageBroker extends EventEmitter {
 
       this.telegramBot.sendMessage('Stopped');
     });
+    this.on('sold', async (msg) => {
+      console.log('MSG BROKER: SOLD');
+
+      this.telegramBot.sendMessage(msg);
+    });
+    this.on('bought', async (msg) => {
+      console.log('MSG BROKER: BOUGHT');
+
+      this.telegramBot.sendMessage(msg);
+    });
   }
 
   addTelegramBot(telegramBot) {

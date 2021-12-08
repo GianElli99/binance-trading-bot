@@ -43,6 +43,19 @@ class BinanceBot {
       return error;
     }
   }
+  async getOrder(id) {
+    try {
+      console.log('called:', Date.UTC.now());
+      const response = await this.account.getOrder('BTCBUSD', {
+        orderId: id,
+        recvWindow: 3000,
+      });
+      console.log(response.data);
+      return response.data.status === 'FILLED' ? false : true;
+    } catch (error) {
+      return false;
+    }
+  }
   async openOrders() {
     try {
       const response = await this.account.openOrders();
