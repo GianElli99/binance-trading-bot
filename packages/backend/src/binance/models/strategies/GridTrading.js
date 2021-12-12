@@ -27,8 +27,8 @@ class GridTrading {
   }
   async run(data) {
     if (!this.initial_price) {
-      this.initial_price = 50300; //Number(data.c);
-      this.last_price = 50300; //Number(data.c);
+      this.initial_price = Number(data.c);
+      this.last_price = Number(data.c);
       console.log('Initial price', this.initial_price);
       return;
     }
@@ -64,6 +64,7 @@ class GridTrading {
         console.log(msg);
         this.account.msgBroker.emit('bought', msg);
         this.buyOrder = undefined;
+        await this.setInitialState();
       }
       return !executed;
     }
@@ -82,6 +83,7 @@ class GridTrading {
         console.log(msg);
         this.account.msgBroker.emit('sold', msg);
         this.sellOrder = undefined;
+        await this.setInitialState();
       }
       return !executed;
     }
@@ -134,22 +136,24 @@ class GridTrading {
         const price = Number(
           (this.last_price * (1 + this.grid_trailing_stop_gap)).toFixed(2),
         );
-        console.log('Place new buy order at ', price);
+        if (this.busd_free_amount >= 0.00021 * price && 0.00021 * price >= 10) {
+          console.log('Place new buy order at ', price);
 
-        const order = new Order(
-          undefined,
-          'BTCBUSD',
-          price,
-          0.00021,
-          'GTC',
-          'STOP_LOSS_LIMIT',
-          'BUY',
-          price,
-        );
-        const res = await this.account.newOrder(order);
-        console.log(res);
-        this.buyOrder = res;
-        this.buyOrder.placedAt = this.last_price;
+          const order = new Order(
+            undefined,
+            'BTCBUSD',
+            price,
+            0.00021,
+            'GTC',
+            'STOP_LOSS_LIMIT',
+            'BUY',
+            price,
+          );
+          const res = await this.account.newOrder(order);
+          console.log(res);
+          this.buyOrder = res;
+          this.buyOrder.placedAt = this.last_price;
+        }
       }
     }
     release();
@@ -193,28 +197,31 @@ class GridTrading {
       //no hay orden
       if (this.last_price > this.initial_price * (1 + this.grid_gap)) {
         //supera el trigger, hay que crearla entonces
+        //checkear que tenga fondos
         const price = Number(
           (
             this.last_price -
             this.last_price * this.grid_trailing_stop_gap
           ).toFixed(2),
         );
-        console.log('Place new sell order at ', price);
+        if (this.btc_free_amount >= 0.00021 && 0.00021 * price >= 10) {
+          console.log('Place new sell order at ', price);
 
-        const order = new Order(
-          undefined,
-          'BTCBUSD',
-          price,
-          0.00021,
-          'GTC',
-          'STOP_LOSS_LIMIT',
-          'SELL',
-          price,
-        );
-        const res = await this.account.newOrder(order);
-        console.log(res);
-        this.sellOrder = res;
-        this.sellOrder.placedAt = this.last_price;
+          const order = new Order(
+            undefined,
+            'BTCBUSD',
+            price,
+            0.00021,
+            'GTC',
+            'STOP_LOSS_LIMIT',
+            'SELL',
+            price,
+          );
+          const res = await this.account.newOrder(order);
+          console.log(res);
+          this.sellOrder = res;
+          this.sellOrder.placedAt = this.last_price;
+        }
       }
     }
     release();

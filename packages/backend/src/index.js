@@ -1,9 +1,9 @@
-require('dotenv').config();
-const { BinanceBot, Order } = require('./binance');
 const { CustomTelegramBot } = require('./telegram');
+const { BinanceBot, Order } = require('./binance');
 const { api } = require('./web-api');
 const { MessageBroker } = require('./msg-broker');
 const { GridTrading } = require('./binance/models/strategies/GridTrading');
+require('dotenv').config();
 
 const apiKey = process.env.API_KEY;
 const apiSecret = process.env.API_SECRET;
