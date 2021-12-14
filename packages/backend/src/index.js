@@ -7,7 +7,7 @@ require('dotenv').config();
 
 const apiKey = process.env.API_KEY;
 const apiSecret = process.env.API_SECRET;
-const binanceBot = new BinanceBot(apiKey, apiSecret, '');
+const binanceBot = new BinanceBot(apiKey, apiSecret, 'production');
 
 const chatId = parseInt(process.env.CHAT_ID);
 const token = process.env.TELEGRAM_TOKEN;
@@ -22,7 +22,7 @@ api.listen(port, async () => {
   console.log('Server running on port ' + port);
   // const resp = await binanceBot.accountInfo();
   // console.log(resp);
-  //console.log(await binanceBot.openOrders());
+  //console.log(await binanceBot.cancelOrder(111));
   // const newOrder = new Order(
   //   undefined,
   //   'ETHBTC',

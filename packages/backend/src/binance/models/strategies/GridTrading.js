@@ -119,15 +119,19 @@ class GridTrading {
           'BUY',
           price,
         );
-        const deleteOld = await this.account.cancelOrder({
+        const deleteOrderResponse = await this.account.cancelOrder({
           symbol: 'BTCBUSD',
           id: this.buyOrder.orderId,
         });
-        console.log(deleteOld);
-        const res = await this.account.newOrder(order);
-        console.log(res);
-        this.buyOrder = res;
-        this.buyOrder.placedAt = this.last_price;
+        console.log(deleteOrderResponse);
+        if (deleteOrderResponse.success) {
+          const newOrderResponse = await this.account.newOrder(order);
+          console.log(newOrderResponse);
+          if (newOrderResponse.success) {
+            this.buyOrder = newOrderResponse.data;
+            this.buyOrder.placedAt = this.last_price;
+          }
+        }
       }
     } else {
       //no hay orden
@@ -149,10 +153,12 @@ class GridTrading {
             'BUY',
             price,
           );
-          const res = await this.account.newOrder(order);
-          console.log(res);
-          this.buyOrder = res;
-          this.buyOrder.placedAt = this.last_price;
+          const newOrderResponse = await this.account.newOrder(order);
+          console.log(newOrderResponse);
+          if (newOrderResponse.success) {
+            this.buyOrder = newOrderResponse.data;
+            this.buyOrder.placedAt = this.last_price;
+          }
         }
       }
     }
@@ -183,15 +189,19 @@ class GridTrading {
           'SELL',
           price,
         );
-        const deleteOld = await this.account.cancelOrder({
+        const deleteOrderResponse = await this.account.cancelOrder({
           symbol: 'BTCBUSD',
           id: this.sellOrder.orderId,
         });
-        console.log(deleteOld);
-        const res = await this.account.newOrder(order);
-        console.log(res);
-        this.sellOrder = res;
-        this.sellOrder.placedAt = this.last_price;
+        console.log(deleteOrderResponse);
+        if (deleteOrderResponse.success) {
+          const newOrderResponse = await this.account.newOrder(order);
+          console.log(newOrderResponse);
+          if (newOrderResponse.success) {
+            this.sellOrder = newOrderResponse.data;
+            this.sellOrder.placedAt = this.last_price;
+          }
+        }
       }
     } else {
       //no hay orden
@@ -217,10 +227,12 @@ class GridTrading {
             'SELL',
             price,
           );
-          const res = await this.account.newOrder(order);
-          console.log(res);
-          this.sellOrder = res;
-          this.sellOrder.placedAt = this.last_price;
+          const newOrderResponse = await this.account.newOrder(order);
+          console.log(newOrderResponse);
+          if (newOrderResponse.success) {
+            this.sellOrder = newOrderResponse;
+            this.sellOrder.placedAt = this.last_price;
+          }
         }
       }
     }
@@ -229,25 +241,26 @@ class GridTrading {
 
   async setInitialState() {
     const res = await this.account.accountInfo();
-    console.log(res);
-    this.btc_free_amount = Number(
-      res.balances.find((x) => x.asset === 'BTC')?.free,
-    );
-    this.btc_locked_amount = Number(
-      res.balances.find((x) => x.asset === 'BTC')?.locked,
-    );
+    if (res.success) {
+      this.btc_free_amount = Number(
+        res.data.balances.find((x) => x.asset === 'BTC')?.free,
+      );
+      this.btc_locked_amount = Number(
+        res.data.balances.find((x) => x.asset === 'BTC')?.locked,
+      );
 
-    this.busd_free_amount = Number(
-      res.balances.find((x) => x.asset === 'BUSD')?.free,
-    );
-    this.busd_locked_amount = Number(
-      res.balances.find((x) => x.asset === 'BUSD')?.locked,
-    );
+      this.busd_free_amount = Number(
+        res.data.balances.find((x) => x.asset === 'BUSD')?.free,
+      );
+      this.busd_locked_amount = Number(
+        res.data.balances.find((x) => x.asset === 'BUSD')?.locked,
+      );
 
-    console.log(this.btc_free_amount, 'BTC free');
-    console.log(this.btc_locked_amount, 'BTC locked');
-    console.log(this.busd_free_amount, 'BUSD free');
-    console.log(this.busd_locked_amount, 'BUSD locked');
+      console.log(this.btc_free_amount, 'BTC free');
+      console.log(this.btc_locked_amount, 'BTC locked');
+      console.log(this.busd_free_amount, 'BUSD free');
+      console.log(this.busd_locked_amount, 'BUSD locked');
+    }
   }
 }
 

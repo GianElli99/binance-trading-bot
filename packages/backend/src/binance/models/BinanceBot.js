@@ -2,6 +2,8 @@ const { Spot } = require('@binance/connector');
 const { sides } = require('../constants/side');
 const { orderTypes } = require('../constants/orderType');
 const { MessageBroker } = require('../../msg-broker');
+const { formatError } = require('../helpers/formatError');
+const { formatSuccess } = require('../helpers/formatSuccess');
 
 class BinanceBot {
   account;
@@ -12,9 +14,9 @@ class BinanceBot {
     this.msgBroker = new MessageBroker();
     this.account = new Spot(apiKey, apiSecret, {
       baseURL:
-        mode === 'development'
-          ? 'https://testnet.binance.vision'
-          : 'https://api.binance.com',
+        mode === 'production'
+          ? 'https://api.binance.com'
+          : 'https://testnet.binance.vision',
     });
   }
 
@@ -38,27 +40,33 @@ class BinanceBot {
   async accountInfo() {
     try {
       const response = await this.account.account();
-      return response.data;
+      return formatSuccess(response);
     } catch (error) {
-      return error;
+      return formatError(error);
     }
   }
   async getOrder(id) {
     try {
-      console.log('called:', Date.UTC.now());
       const response = await this.account.getOrder('BTCBUSD', {
         orderId: id,
         recvWindow: 3000,
       });
-      console.log(response.data);
-      return response.data.status === 'FILLED' ? false : true;
+      return formatSuccess(response);
     } catch (error) {
-      return false;
+      return formatError(error);
     }
+  }
+  async isOrderFilled(orderId) {
+    const response = await this.getOrder(orderId);
+    if (response.success && response.data.status === 'FILLED') {
+      return true;
+    }
+    return false;
   }
   async openOrders() {
     try {
       const response = await this.account.openOrders();
+      console.log(response);
       return response.data;
     } catch (error) {
       return error;
@@ -83,7 +91,7 @@ class BinanceBot {
       }
     }
     if (!validOrderType) {
-      return { error: true, message: 'Invalid order type' };
+      return formatError({ message: 'Invalid order type' });
     }
 
     try {
@@ -93,9 +101,9 @@ class BinanceBot {
         order.type,
         { ...order.importantValues(), newOrderRespType: 'RESULT' },
       );
-      return response.data;
+      return formatSuccess(response);
     } catch (error) {
-      return error;
+      return formatError(error);
     }
   }
 
@@ -104,9 +112,9 @@ class BinanceBot {
       const response = await this.account.cancelOrder(order.symbol, {
         orderId: order.id,
       });
-      return response.data;
+      return formatSuccess(response);
     } catch (error) {
-      return error;
+      return formatError(error);
     }
   }
   miniTickerWS() {
