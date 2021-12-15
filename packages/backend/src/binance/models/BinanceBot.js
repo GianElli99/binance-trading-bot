@@ -8,9 +8,15 @@ const { formatSuccess } = require('../helpers/formatSuccess');
 class BinanceBot {
   account;
   strategy;
-  webSocketRef;
+  miniTickerRef;
   msgBroker;
-  constructor(apiKey, apiSecret, mode) {
+  base;
+  quote;
+  pair;
+  constructor(apiKey, apiSecret, mode, base, quote) {
+    this.base = base;
+    this.quote = quote;
+    this.pair = base + quote;
     this.msgBroker = new MessageBroker();
     this.account = new Spot(apiKey, apiSecret, {
       baseURL:
@@ -21,13 +27,13 @@ class BinanceBot {
   }
 
   async start() {
-    await this.strategy.setInitialState();
+    await this.strategy.setInitialState(this.base, this.quote);
     this.miniTickerWS();
     console.log('BINANCE: START');
   }
   stop() {
     if (this.strategy) {
-      this.account.unsubscribe(this.webSocketRef);
+      this.account.unsubscribe(this.miniTickerRef);
       console.log('BINANCE: STOP');
     }
   }
@@ -132,7 +138,7 @@ class BinanceBot {
         this.strategy.run(dataParsed);
       },
     };
-    this.webSocketRef = this.account.miniTickerWS('BTCBUSD', callbacks);
+    this.miniTickerRef = this.account.miniTickerWS(this.pair, callbacks);
   }
 }
 

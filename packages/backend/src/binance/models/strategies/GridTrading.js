@@ -2,16 +2,18 @@ const { Order } = require('../Order');
 const Mutex = require('async-mutex').Mutex;
 
 class GridTrading {
-  name;
   account;
-  btc_free_amount;
-  btc_locked_amount;
-  busd_free_amount;
-  busd_locked_amount;
+  base;
+  quote;
+  pair;
+  base_free_amount;
+  base_locked_amount;
+  quote_free_amount;
+  quote_locked_amount;
 
-  grid_gap = 0.00635; //0.0003; //0.0125;
-  grid_trailing_stop_gap = 0.00125; //0.0001; //0.0025;
-  calculate_difference = 0.0005;
+  grid_gap;
+  grid_trailing_stop_gap;
+  calculate_difference;
 
   initial_price = undefined;
   last_price = undefined;
@@ -21,8 +23,10 @@ class GridTrading {
 
   mutex;
 
-  constructor(name = 'Grid Trading') {
-    this.name = name;
+  constructor(gap, trailingGap, minimumDifference) {
+    this.grid_gap = gap || 0.00635; //0.0003; //0.0125;
+    this.grid_trailing_stop_gap = trailingGap || 0.00125; //0.0001; //0.0025;
+    this.calculate_difference = minimumDifference || 0.0005;
     this.mutex = new Mutex();
   }
   async run(data) {
@@ -60,7 +64,7 @@ class GridTrading {
       if (executed) {
         this.initial_price = Number(this.buyOrder.price);
         this.last_price = Number(this.buyOrder.price);
-        const msg = `❗❗BOUGHT❗❗${this.buyOrder.origQty} BTCBUSD at ${this.buyOrder.price}`;
+        const msg = `❗BOUGHT❗${this.buyOrder.origQty} BTCBUSD at ${this.buyOrder.price}`;
         console.log(msg);
         this.account.msgBroker.emit('bought', msg);
         this.buyOrder = undefined;
@@ -79,7 +83,7 @@ class GridTrading {
       if (executed) {
         this.initial_price = Number(this.sellOrder.price);
         this.last_price = Number(this.sellOrder.price);
-        const msg = `💹💹SOLD💹💹${this.sellOrder.origQty} BTCBUSD at ${this.sellOrder.price}`;
+        const msg = `💹SOLD💹${this.sellOrder.origQty} BTCBUSD at ${this.sellOrder.price}`;
         console.log(msg);
         this.account.msgBroker.emit('sold', msg);
         this.sellOrder = undefined;
@@ -140,7 +144,10 @@ class GridTrading {
         const price = Number(
           (this.last_price * (1 + this.grid_trailing_stop_gap)).toFixed(2),
         );
-        if (this.busd_free_amount >= 0.00021 * price && 0.00021 * price >= 10) {
+        if (
+          this.quote_free_amount >= 0.00021 * price &&
+          0.00021 * price >= 10
+        ) {
           console.log('Place new buy order at ', price);
 
           const order = new Order(
@@ -214,7 +221,7 @@ class GridTrading {
             this.last_price * this.grid_trailing_stop_gap
           ).toFixed(2),
         );
-        if (this.btc_free_amount >= 0.00021 && 0.00021 * price >= 10) {
+        if (this.base_free_amount >= 0.00021 && 0.00021 * price >= 10) {
           console.log('Place new sell order at ', price);
 
           const order = new Order(
@@ -230,7 +237,7 @@ class GridTrading {
           const newOrderResponse = await this.account.newOrder(order);
           console.log(newOrderResponse);
           if (newOrderResponse.success) {
-            this.sellOrder = newOrderResponse;
+            this.sellOrder = newOrderResponse.data;
             this.sellOrder.placedAt = this.last_price;
           }
         }
@@ -239,27 +246,30 @@ class GridTrading {
     release();
   }
 
-  async setInitialState() {
+  async setInitialState(baseCurrency, quoteCurrency) {
+    this.base = baseCurrency;
+    this.quote = quoteCurrency;
+    this.pair = this.base + this.quote;
     const res = await this.account.accountInfo();
     if (res.success) {
-      this.btc_free_amount = Number(
-        res.data.balances.find((x) => x.asset === 'BTC')?.free,
+      this.base_free_amount = Number(
+        res.data.balances.find((x) => x.asset === this.base)?.free,
       );
-      this.btc_locked_amount = Number(
-        res.data.balances.find((x) => x.asset === 'BTC')?.locked,
-      );
-
-      this.busd_free_amount = Number(
-        res.data.balances.find((x) => x.asset === 'BUSD')?.free,
-      );
-      this.busd_locked_amount = Number(
-        res.data.balances.find((x) => x.asset === 'BUSD')?.locked,
+      this.base_locked_amount = Number(
+        res.data.balances.find((x) => x.asset === this.base)?.locked,
       );
 
-      console.log(this.btc_free_amount, 'BTC free');
-      console.log(this.btc_locked_amount, 'BTC locked');
-      console.log(this.busd_free_amount, 'BUSD free');
-      console.log(this.busd_locked_amount, 'BUSD locked');
+      this.quote_free_amount = Number(
+        res.data.balances.find((x) => x.asset === this.quote)?.free,
+      );
+      this.quote_locked_amount = Number(
+        res.data.balances.find((x) => x.asset === this.quote)?.locked,
+      );
+
+      console.log(this.base_free_amount, this.base, ' free');
+      console.log(this.base_locked_amount, this.base, ' locked');
+      console.log(this.quote_free_amount, this.quote, ' free');
+      console.log(this.quote_locked_amount, this.quote, ' locked');
     }
   }
 }

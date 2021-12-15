@@ -7,7 +7,13 @@ require('dotenv').config();
 
 const apiKey = process.env.API_KEY;
 const apiSecret = process.env.API_SECRET;
-const binanceBot = new BinanceBot(apiKey, apiSecret, 'production');
+const binanceBot = new BinanceBot(
+  apiKey,
+  apiSecret,
+  'production',
+  'BTC',
+  'BUSD',
+);
 
 const chatId = parseInt(process.env.CHAT_ID);
 const token = process.env.TELEGRAM_TOKEN;
