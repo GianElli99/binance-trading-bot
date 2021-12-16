@@ -24,8 +24,8 @@ class GridTrading {
   mutex;
 
   constructor(gap, trailingGap, minimumDifference) {
-    this.grid_gap = gap || 0.00635; //0.0003; //0.0125;
-    this.grid_trailing_stop_gap = trailingGap || 0.00125; //0.0001; //0.0025;
+    this.grid_gap = gap || 0.0125; // 0.00635; //0.0003; //0.0125;
+    this.grid_trailing_stop_gap = trailingGap || 0.0025; //0.00125; //0.0001; //0.0025;
     this.calculate_difference = minimumDifference || 0.0005;
     this.mutex = new Mutex();
   }
@@ -33,7 +33,7 @@ class GridTrading {
     if (!this.initial_price) {
       this.initial_price = Number(data.c);
       this.last_price = Number(data.c);
-      console.log('Initial price', this.initial_price);
+      log('Initial price', this.initial_price);
       return;
     }
     let close_price = Number(data.c);
@@ -44,13 +44,13 @@ class GridTrading {
       //const release = await this.mutex.acquire();
       const problems = await this.checkForExecutedOrderProblems(close_price);
       if (problems) {
-        console.log('Problem at price ', close_price);
+        log('Problem at price ', close_price);
         this.account.msgBroker.emit('stop');
         return;
       }
       //release();
       this.last_price = close_price;
-      console.log(this.last_price, ' Last price');
+      log(this.last_price, ' Last price');
       this.placeOrder();
     }
   }
@@ -65,7 +65,7 @@ class GridTrading {
         this.initial_price = Number(this.buyOrder.price);
         this.last_price = Number(this.buyOrder.price);
         const msg = `❗BOUGHT❗${this.buyOrder.origQty} BTCBUSD at ${this.buyOrder.price}`;
-        console.log(msg);
+        log(msg);
         this.account.msgBroker.emit('bought', msg);
         this.buyOrder = undefined;
         await this.setInitialState();
@@ -84,7 +84,7 @@ class GridTrading {
         this.initial_price = Number(this.sellOrder.price);
         this.last_price = Number(this.sellOrder.price);
         const msg = `💹SOLD💹${this.sellOrder.origQty} BTCBUSD at ${this.sellOrder.price}`;
-        console.log(msg);
+        log(msg);
         this.account.msgBroker.emit('sold', msg);
         this.sellOrder = undefined;
         await this.setInitialState();
@@ -111,7 +111,7 @@ class GridTrading {
             this.last_price * this.grid_trailing_stop_gap
           ).toFixed(2),
         );
-        console.log('Trailing buy order modified to ', price);
+        log('Trailing buy order modified to ', price);
 
         const order = new Order(
           undefined,
@@ -127,10 +127,10 @@ class GridTrading {
           symbol: 'BTCBUSD',
           id: this.buyOrder.orderId,
         });
-        console.log(deleteOrderResponse);
+        log(deleteOrderResponse);
         if (deleteOrderResponse.success) {
           const newOrderResponse = await this.account.newOrder(order);
-          console.log(newOrderResponse);
+          log(newOrderResponse);
           if (newOrderResponse.success) {
             this.buyOrder = newOrderResponse.data;
             this.buyOrder.placedAt = this.last_price;
@@ -148,7 +148,7 @@ class GridTrading {
           this.quote_free_amount >= 0.00021 * price &&
           0.00021 * price >= 10
         ) {
-          console.log('Place new buy order at ', price);
+          log('Place new buy order at ', price);
 
           const order = new Order(
             undefined,
@@ -161,7 +161,7 @@ class GridTrading {
             price,
           );
           const newOrderResponse = await this.account.newOrder(order);
-          console.log(newOrderResponse);
+          log(newOrderResponse);
           if (newOrderResponse.success) {
             this.buyOrder = newOrderResponse.data;
             this.buyOrder.placedAt = this.last_price;
@@ -184,7 +184,7 @@ class GridTrading {
             this.last_price * this.grid_trailing_stop_gap
           ).toFixed(2),
         );
-        console.log('Trailing sell order modified to ', price);
+        log('Trailing sell order modified to ', price);
 
         const order = new Order(
           undefined,
@@ -200,10 +200,10 @@ class GridTrading {
           symbol: 'BTCBUSD',
           id: this.sellOrder.orderId,
         });
-        console.log(deleteOrderResponse);
+        log(deleteOrderResponse);
         if (deleteOrderResponse.success) {
           const newOrderResponse = await this.account.newOrder(order);
-          console.log(newOrderResponse);
+          log(newOrderResponse);
           if (newOrderResponse.success) {
             this.sellOrder = newOrderResponse.data;
             this.sellOrder.placedAt = this.last_price;
@@ -222,7 +222,7 @@ class GridTrading {
           ).toFixed(2),
         );
         if (this.base_free_amount >= 0.00021 && 0.00021 * price >= 10) {
-          console.log('Place new sell order at ', price);
+          log('Place new sell order at ', price);
 
           const order = new Order(
             undefined,
@@ -235,7 +235,7 @@ class GridTrading {
             price,
           );
           const newOrderResponse = await this.account.newOrder(order);
-          console.log(newOrderResponse);
+          log(newOrderResponse);
           if (newOrderResponse.success) {
             this.sellOrder = newOrderResponse.data;
             this.sellOrder.placedAt = this.last_price;
@@ -266,12 +266,18 @@ class GridTrading {
         res.data.balances.find((x) => x.asset === this.quote)?.locked,
       );
 
-      console.log(this.base_free_amount, this.base, ' free');
-      console.log(this.base_locked_amount, this.base, ' locked');
-      console.log(this.quote_free_amount, this.quote, ' free');
-      console.log(this.quote_locked_amount, this.quote, ' locked');
+      log(this.base_free_amount, this.base, ' free');
+      log(this.base_locked_amount, this.base, ' locked');
+      log(this.quote_free_amount, this.quote, ' free');
+      log(this.quote_locked_amount, this.quote, ' locked');
     }
   }
 }
+
+const log = (...rest) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.log(...rest);
+  }
+};
 
 module.exports = { GridTrading };

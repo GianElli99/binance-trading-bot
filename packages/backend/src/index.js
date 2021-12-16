@@ -49,7 +49,7 @@ api.listen(port, async () => {
   //   binanceAccount.stop();
   // }, 10000);
   binanceBot.changeStrategy(new GridTrading());
-  await binanceBot.start();
+  //await binanceBot.start();
   // console.log(Date.now());
   // await new Promise((resolve) => setTimeout(resolve, 2000));
   // console.log(Date.now());
