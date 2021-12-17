@@ -44,6 +44,11 @@ class MessageBroker extends EventEmitter {
 
       this.telegramBot.sendMessage(msg);
     });
+    this.on('initial_price', async (msg) => {
+      console.log('MSG BROKER: NEW INITIAL PRICE');
+
+      this.telegramBot.sendMessage(msg);
+    });
   }
 
   addTelegramBot(telegramBot) {

@@ -34,6 +34,10 @@ class GridTrading {
       this.initial_price = Number(data.c);
       this.last_price = Number(data.c);
       log('Initial price', this.initial_price);
+      this.account.msgBroker.emit(
+        'initial_price',
+        `Initial Price: ${this.initial_price}`,
+      );
       return;
     }
     let close_price = Number(data.c);
@@ -67,6 +71,10 @@ class GridTrading {
         const msg = `❗BOUGHT❗${this.buyOrder.origQty} BTCBUSD at ${this.buyOrder.price}`;
         log(msg);
         this.account.msgBroker.emit('bought', msg);
+        this.account.msgBroker.emit(
+          'initial_price',
+          `Initial Price: ${this.initial_price}`,
+        );
         this.buyOrder = undefined;
         await this.setInitialState();
       }
@@ -86,6 +94,10 @@ class GridTrading {
         const msg = `💹SOLD💹${this.sellOrder.origQty} BTCBUSD at ${this.sellOrder.price}`;
         log(msg);
         this.account.msgBroker.emit('sold', msg);
+        this.account.msgBroker.emit(
+          'initial_price',
+          `Initial Price: ${this.initial_price}`,
+        );
         this.sellOrder = undefined;
         await this.setInitialState();
       }
