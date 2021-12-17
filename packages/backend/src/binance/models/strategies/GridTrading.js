@@ -36,8 +36,8 @@ class GridTrading {
   }
   async run(data) {
     if (!this.initial_price) {
-      this.initial_price = 45000; //Number(data.c);
-      this.last_price = 45000; //Number(data.c);
+      this.initial_price = Number(data.c);
+      this.last_price = Number(data.c);
       log('Initial price', this.initial_price);
       this.account.msgBroker.emit(
         'initial_price',
