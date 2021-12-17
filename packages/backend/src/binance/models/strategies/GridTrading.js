@@ -81,7 +81,7 @@ class GridTrading {
           `Initial Price: ${this.initial_price}`,
         );
         this.buyOrder = undefined;
-        await this.setInitialState();
+        await this.setInitialState(this.base, this.quote);
       }
       return !executed;
     }
@@ -104,7 +104,7 @@ class GridTrading {
           `Initial Price: ${this.initial_price}`,
         );
         this.sellOrder = undefined;
-        await this.setInitialState();
+        await this.setInitialState(this.base, this.quote);
       }
       return !executed;
     }
@@ -160,7 +160,11 @@ class GridTrading {
           if (newOrderResponse.success) {
             this.buyOrder = newOrderResponse.data;
             this.buyOrder.placedAt = this.last_price;
+          } else {
+            this.account.msgBroker('stop');
           }
+        } else {
+          this.account.msgBroker('stop');
         }
       }
     } else {
@@ -200,6 +204,8 @@ class GridTrading {
           if (newOrderResponse.success) {
             this.buyOrder = newOrderResponse.data;
             this.buyOrder.placedAt = this.last_price;
+          } else {
+            this.account.msgBroker('stop');
           }
         }
       }
@@ -251,7 +257,11 @@ class GridTrading {
           if (newOrderResponse.success) {
             this.sellOrder = newOrderResponse.data;
             this.sellOrder.placedAt = this.last_price;
+          } else {
+            this.account.msgBroker('stop');
           }
+        } else {
+          this.account.msgBroker('stop');
         }
       }
     } else {
@@ -295,6 +305,8 @@ class GridTrading {
           if (newOrderResponse.success) {
             this.sellOrder = newOrderResponse.data;
             this.sellOrder.placedAt = this.last_price;
+          } else {
+            this.account.msgBroker('stop');
           }
         }
       }
