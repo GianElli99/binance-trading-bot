@@ -28,11 +28,16 @@ class GridTrading {
     this.grid_trailing_stop_gap = trailingGap || 0.0025; //0.00125; //0.0001; //0.0025;
     this.calculate_difference = minimumDifference || 0.0005;
     this.mutex = new Mutex();
+    console.log(
+      this.grid_gap,
+      this.grid_trailing_stop_gap,
+      this.calculate_difference,
+    );
   }
   async run(data) {
     if (!this.initial_price) {
-      this.initial_price = Number(data.c);
-      this.last_price = Number(data.c);
+      this.initial_price = 45000; //Number(data.c);
+      this.last_price = 45000; //Number(data.c);
       log('Initial price', this.initial_price);
       this.account.msgBroker.emit(
         'initial_price',
@@ -123,13 +128,22 @@ class GridTrading {
             this.last_price * this.grid_trailing_stop_gap
           ).toFixed(2),
         );
+        const baseQuantityUnfixed = 10 / price; //0.00022222222
+        let baseQuantityFixed = undefined;
+        if (Number(baseQuantityUnfixed.toFixed(5)) < baseQuantityUnfixed) {
+          baseQuantityFixed = Number(
+            (baseQuantityUnfixed + 0.00001).toFixed(5),
+          );
+        } else {
+          baseQuantityFixed = Number(baseQuantityUnfixed.toFixed(5));
+        }
         log('Trailing buy order modified to ', price);
 
         const order = new Order(
           undefined,
           'BTCBUSD',
           price,
-          0.00021,
+          baseQuantityFixed,
           'GTC',
           'STOP_LOSS_LIMIT',
           'BUY',
@@ -156,9 +170,18 @@ class GridTrading {
         const price = Number(
           (this.last_price * (1 + this.grid_trailing_stop_gap)).toFixed(2),
         );
+        const baseQuantityUnfixed = 10 / price; //0.00022222222
+        let baseQuantityFixed = undefined;
+        if (Number(baseQuantityUnfixed.toFixed(5)) < baseQuantityUnfixed) {
+          baseQuantityFixed = Number(
+            (baseQuantityUnfixed + 0.00001).toFixed(5),
+          );
+        } else {
+          baseQuantityFixed = Number(baseQuantityUnfixed.toFixed(5));
+        }
         if (
-          this.quote_free_amount >= 0.00021 * price &&
-          0.00021 * price >= 10
+          this.quote_free_amount >= baseQuantityFixed * price &&
+          baseQuantityFixed * price >= 10
         ) {
           log('Place new buy order at ', price);
 
@@ -166,7 +189,7 @@ class GridTrading {
             undefined,
             'BTCBUSD',
             price,
-            0.00021,
+            baseQuantityFixed,
             'GTC',
             'STOP_LOSS_LIMIT',
             'BUY',
@@ -196,13 +219,22 @@ class GridTrading {
             this.last_price * this.grid_trailing_stop_gap
           ).toFixed(2),
         );
+        const baseQuantityUnfixed = 10 / price; //0.00022222222
+        let baseQuantityFixed = undefined;
+        if (Number(baseQuantityUnfixed.toFixed(5)) < baseQuantityUnfixed) {
+          baseQuantityFixed = Number(
+            (baseQuantityUnfixed + 0.00001).toFixed(5),
+          );
+        } else {
+          baseQuantityFixed = Number(baseQuantityUnfixed.toFixed(5));
+        }
         log('Trailing sell order modified to ', price);
 
         const order = new Order(
           undefined,
           'BTCBUSD',
           price,
-          0.00021,
+          baseQuantityFixed,
           'GTC',
           'STOP_LOSS_LIMIT',
           'SELL',
@@ -233,14 +265,26 @@ class GridTrading {
             this.last_price * this.grid_trailing_stop_gap
           ).toFixed(2),
         );
-        if (this.base_free_amount >= 0.00021 && 0.00021 * price >= 10) {
+        const baseQuantityUnfixed = 10 / price; //0.00022222222
+        let baseQuantityFixed = undefined;
+        if (Number(baseQuantityUnfixed.toFixed(5)) < baseQuantityUnfixed) {
+          baseQuantityFixed = Number(
+            (baseQuantityUnfixed + 0.00001).toFixed(5),
+          );
+        } else {
+          baseQuantityFixed = Number(baseQuantityUnfixed.toFixed(5));
+        }
+        if (
+          this.base_free_amount >= baseQuantityFixed &&
+          baseQuantityFixed * price >= 10
+        ) {
           log('Place new sell order at ', price);
 
           const order = new Order(
             undefined,
             'BTCBUSD',
             price,
-            0.00021,
+            baseQuantityFixed,
             'GTC',
             'STOP_LOSS_LIMIT',
             'SELL',
