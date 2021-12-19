@@ -2,7 +2,10 @@ const axios = require('axios').default;
 const keepDynoUp = (minutes, url) => {
   setInterval(() => {
     try {
-      axios.get(url);
+      const currentHour = new Date().getUTCHours();
+      if (currentHour < 12 || currentHour >= 18) {
+        axios.get(url);
+      }
     } catch (error) {
       console.log(error);
     }
