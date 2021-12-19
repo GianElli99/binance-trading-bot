@@ -3,6 +3,7 @@ const { BinanceBot, Order } = require('./binance');
 const { api } = require('./web-api');
 const { MessageBroker } = require('./msg-broker');
 const { GridTrading } = require('./binance/models/strategies/GridTrading');
+const { keepDynoUp } = require('./binance/helpers/keepDynoUp');
 require('dotenv').config();
 
 const apiKey = process.env.API_KEY;
@@ -24,6 +25,8 @@ msgBroker.addTelegramBot(telegramBot);
 msgBroker.addBinanceBot(binanceBot);
 
 const port = process.env.PORT;
+const isRunningOnHeroku = process.env.IS_RUNNING_ON_HEROKU;
+const url = process.env.URL;
 api.listen(port, async () => {
   console.log('Server running on port ' + port);
   // const resp = await binanceBot.accountInfo();
@@ -49,6 +52,9 @@ api.listen(port, async () => {
   //   binanceAccount.stop();
   // }, 10000);
   binanceBot.changeStrategy(new GridTrading());
+  if (isRunningOnHeroku === 'yes') {
+    keepDynoUp(15, url);
+  }
   //await binanceBot.start();
   // console.log(Date.now());
   // await new Promise((resolve) => setTimeout(resolve, 2000));
